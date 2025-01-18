@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Registration</title>
+  <!-- Tailwind CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold text-center mb-6">Register User</h1>
+    <!-- Registration Form -->
+    <form id="registerForm" class="max-w-lg mx-auto bg-white p-6 rounded shadow">
+      <div class="mb-4">
+        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <input type="text" id="fullName" name="fullName" required
+          class="mt-1 block w-full border border-gray-300 rounded p-2" />
+      </div>
+      <div class="mb-4">
+        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+        <input type="text" id="username" name="username" required
+          class="mt-1 block w-full border border-gray-300 rounded p-2" />
+      </div>
+      <div class="mb-4">
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required
+          class="mt-1 block w-full border border-gray-300 rounded p-2" />
+      </div>
+      <div class="mb-4">
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required
+          class="mt-1 block w-full border border-gray-300 rounded p-2" />
+      </div>
+      <div class="mb-4">
+        <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+        <input type="text" id="country" name="country"
+          class="mt-1 block w-full border border-gray-300 rounded p-2" />
+      </div>
+      <div class="mb-4">
+        <label for="avatar" class="block text-sm font-medium text-gray-700">Avatar Image</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*" required
+          class="mt-1 block w-full" />
+      </div>
+      <div class="mb-4">
+        <label for="coverImage" class="block text-sm font-medium text-gray-700">Cover Image (optional)</label>
+        <input type="file" id="coverImage" name="coverImage" accept="image/*"
+          class="mt-1 block w-full" />
+      </div>
+      <button type="submit"
+        class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">
+        Register
+      </button>
+    </form>
+
+    <!-- Display API response here -->
+    <div id="responseContainer" class="mt-6 max-w-lg mx-auto"></div>
+  </div>
+
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // Form submission handler
+    const form = document.getElementById('registerForm');
+    const responseContainer = document.getElementById('responseContainer');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent form from refreshing the page
+
+      // Construct FormData object
+      const formData = new FormData(form);
+
+      // For debugging: log the payload values
+      for (const pair of formData.entries()) {
+        console.log(pair[0]+ ': ' + pair[1]);
+      }
+      
+      try {
+        // Make a POST request to the registration API endpoint.
+        const response = await axios.post('http://localhost:8000/api/v1/users/register', formData, {
+          headers: {
+            // Let the browser set the correct Content-Type with boundary for multipart/form-data
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        // Display success message along with response payload
+        responseContainer.innerHTML = `
+          <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline">${JSON.stringify(response.data)}</span>
+          </div>
+        `;
+        
+        console.log('Response:', response.data);
+      } catch (error) {
+        let errorMsg = 'An error occurred.';
+
+        if (error.response && error.response.data) {
+          errorMsg = JSON.stringify(error.response.data);
+        } else {
+          errorMsg = error.message;
+        }
+
+        responseContainer.innerHTML = `
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">${errorMsg}</span>
+          </div>
+        `;
+        console.error('Error:', error);
+      }
+    });
+  </script>
+</body>
+</html>
